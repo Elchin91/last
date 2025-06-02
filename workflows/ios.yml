@@ -1,0 +1,69 @@
+name: Build iSponsorBlockTV iOS
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+        
+    - name: Create build directory
+      run: mkdir -p build
+        
+    - name: Make build script executable
+      run: chmod +x build_ipa.sh
+        
+    - name: Build iOS App
+      run: ./build_ipa.sh
+      continue-on-error: true
+        
+    - name: List build artifacts
+      run: |
+        echo "📁 Содержимое папки build:"
+        ls -la build/ || echo "Папка build пуста"
+        
+    - name: Upload IPA Artifact
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: iSponsorBlockTV-${{ github.run_number }}
+        path: build/*.ipa
+        retention-days: 30
+        if-no-files-found: warn
+        
+    - name: Create Release
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v1.0.${{ github.run_number }}
+        name: iSponsorBlockTV v1.0.${{ github.run_number }}
+        body: |
+          ## 📱 iSponsorBlockTV для iOS
+          
+          ### 📲 Установка через TrollStore:
+          1. Скачайте IPA файл из этого релиза
+          2. Перенесите файл на iPhone
+          3. Откройте через TrollStore
+          4. Нажмите "Install"
+          
+          ### 🔧 Версия сборки: ${{ github.run_number }}
+          ### 📅 Дата сборки: ${{ github.event.head_commit.timestamp }}
+        files: build/*.ipa
+        fail_on_unmatched_files: false
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
