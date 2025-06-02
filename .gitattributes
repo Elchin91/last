@@ -1,0 +1,32 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# iOS/Xcode specific files
+*.pbxproj text
+*.plist text
+*.strings text
+*.swift text
+*.h text
+*.m text
+*.mm text
+
+# Shell scripts должны иметь Unix окончания строк
+*.sh text eol=lf
+
+# Windows batch files должны иметь Windows окончания строк  
+*.bat text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.ipa binary
+*.zip binary
+*.tar.gz binary
+
+# Исключаем из лингвистического анализа GitHub
+iOS_App/iSponsorBlockTV.xcodeproj/* linguist-generated
+*.pbxproj linguist-generated
+build/ linguist-generated 
